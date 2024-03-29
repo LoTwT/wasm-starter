@@ -9,3 +9,10 @@ lib-cov
 logs
 node_modules
 temp
+
+/target
+**/*.rs.bk
+Cargo.lock
+bin/
+pkg/
+wasm-pack.log

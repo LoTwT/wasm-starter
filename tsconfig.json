@@ -17,5 +17,6 @@
     "isolatedModules": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
-  }
+  },
+  "include": ["scripts/**/*.ts"]
 }

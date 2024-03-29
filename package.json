@@ -37,12 +37,14 @@
     "dist"
   ],
   "scripts": {
+    "build": "tsx scripts/build.ts",
     "lint": "eslint .",
     "prepare": "simple-git-hooks",
     "prepublishOnly": "pnpm build",
     "prettier": "prettier --write .",
     "release": "bumpp && pnpm publish",
-    "up": "taze latest -I -f"
+    "up": "taze latest -I -f",
+    "wp": "wasm-pack"
   },
   "devDependencies": {
     "@ayingott/eslint-config": "^0.8.3",
