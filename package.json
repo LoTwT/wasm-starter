@@ -1,0 +1,71 @@
+{
+  "name": "wasm-starter",
+  "version": "0.0.0",
+  "description": "wasm-starter",
+  "type": "module",
+  "packageManager": "pnpm@8.15.5",
+  "author": "LoTwT <l709937065@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/LoTwT/wasm-starter#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoTwT/wasm-starter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LoTwT/wasm-starter/issues"
+  },
+  "keywords": [],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./*"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "prepare": "simple-git-hooks",
+    "prepublishOnly": "pnpm build",
+    "prettier": "prettier --write .",
+    "release": "bumpp && pnpm publish",
+    "up": "taze latest -I -f"
+  },
+  "devDependencies": {
+    "@ayingott/eslint-config": "^0.8.3",
+    "@ayingott/prettier-config": "^0.2.2",
+    "@types/node": "^20.11.30",
+    "bumpp": "^9.4.0",
+    "eslint": "^8.57.0",
+    "lint-staged": "^15.2.2",
+    "pnpm": "^8.15.5",
+    "prettier": "^3.2.5",
+    "simple-git-hooks": "^2.11.1",
+    "taze": "^0.13.3",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.3"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged"
+  },
+  "lint-staged": {
+    "*": [
+      "eslint --fix",
+      "prettier --write --ignore-unknown"
+    ]
+  },
+  "prettier": "@ayingott/prettier-config"
+}
