@@ -5,7 +5,7 @@ import { defineFlatConfig } from "@ayingott/eslint-config"
 export default defineFlatConfig(
   [
     {
-      ignores: ["**/src/**", "**/tests/**", "**/target/**"],
+      ignores: ["**/src/**", "**/tests/**", "**/target/**", "**/pkg/**"],
     },
   ],
   {
