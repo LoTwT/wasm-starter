@@ -2,28 +2,11 @@ import { resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { copy, ensureDir } from "fs-extra"
 import { type PackageJson, readPackageJSON, writePackageJSON } from "pkg-types"
+import fg from "fast-glob"
 
 const _dirname = fileURLToPath(new URL(".", import.meta.url))
 
-const filesMap = [
-  // wasm
-  ["pkg/node/index_bg.wasm", "dist/index_bg.wasm"],
-  ["pkg/node/index_bg.wasm.d.ts", "dist/index_bg.wasm.d.ts"],
-
-  // node
-  ["pkg/node/index.js", "dist/index.node.js"],
-  ["pkg/node/index.d.ts", "dist/index.node.d.ts"],
-
-  // bundler
-  ["pkg/bundler/index.js", "dist/index.bundler.js"],
-  ["pkg/bundler/index.d.ts", "dist/index.bundler.d.ts"],
-  ["pkg/bundler/index_bg.js", "dist/index_bg.js"],
-
-  // web
-  ["pkg/web/index.js", "dist/index.web.js"],
-  ["pkg/web/index.d.ts", "dist/index.web.d.ts"],
-
-  // shared
+const sharedFiles = [
   ["LICENSE", "LICENSE"],
   ["README.md", "README.md"],
 ]
@@ -34,8 +17,29 @@ async function build() {
   ensureDir("dist")
   ensureDir("dist/dist")
 
+  const pkgFiles = (
+    await fg("pkg/**/*", {
+      cwd: resolve(_dirname, ".."),
+      ignore: [
+        "**/package.json",
+        "**/README.md",
+        "**/LICENSE",
+        "**/.gitignore",
+      ],
+    })
+  )
+    .map((file) => [file, file.replace("pkg/", "dist/")])
+    .map(([_, to]) => [
+      _,
+      to === "dist/node/index.js" || to === "dist/node/index.d.ts"
+        ? `${to.slice(0, -2)}c${to.slice(-2)}`
+        : to,
+    ])
+
+  const files = [...sharedFiles, ...pkgFiles]
+
   await Promise.all(
-    filesMap.map(([from, to]) =>
+    files.map(([from, to]) =>
       copy(resolve(_dirname, "..", from), resolve(_dirname, "../dist", to)),
     ),
   )
@@ -54,25 +58,38 @@ async function build() {
     bugs: localPkgJson.bugs,
     keywords: localPkgJson.keywords,
     files: ["dist"],
+    sideEffects: ["**/*.wasm"],
     exports: {
       ".": {
-        require: "./dist/index.web.js",
-        import: "./dist/index.web.js",
+        require: "./dist/web/index.js",
+        import: "./dist/web/index.js",
       },
       "./node": {
-        require: "./dist/index.node.js",
-        import: "./dist/index.node.js",
+        require: "./dist/node/index.cjs",
+        import: "./dist/node/index.cjs",
       },
       "./bundler": {
-        require: "./dist/index.bundler.js",
-        import: "./dist/index.bundler.js",
+        require: "./dist/bundler/index.js",
+        import: "./dist/bundler/index.js",
+      },
+      "./wasm": {
+        require: "./dist/web/index_bg.wasm",
+        import: "./dist/web/index_bg.wasm",
+      },
+      "./node/wasm": {
+        require: "./dist/node/index_bg.wasm",
+        import: "./dist/node/index_bg.wasm",
+      },
+      "./bundler/wasm": {
+        require: "./dist/bundler/index_bg.wasm",
+        import: "./dist/bundler/index_bg.wasm",
       },
       // @ts-ignore
       "./*": ["./*", "./*.d.ts"],
     },
-    main: "./dist/index.web.js",
-    module: "./dist/index.web.js",
-    types: "./dist/index.web.d.ts",
+    main: "./dist/web/index.js",
+    module: "./dist/web/index.js",
+    types: "./dist/web/index.d.ts",
     typesVersions: {
       "*": {
         "*": ["./dist/*", "./*"],
